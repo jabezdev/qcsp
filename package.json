@@ -1,0 +1,24 @@
+{
+  "name": "qcsp",
+  "version": "1.0.0",
+  "private": true,
+  "description": "QCSP Monorepo - Central hub for all QCSP applications",
+  "workspaces": [
+    "qcsp-hub",
+    "qcsp-volunteers"
+  ],
+  "scripts": {
+    "dev:hub": "npm run dev --workspace=qcsp-hub",
+    "dev:volunteers": "npm run dev --workspace=qcsp-volunteers",
+    "build:hub": "npm run build --workspace=qcsp-hub",
+    "build:volunteers": "npm run build --workspace=qcsp-volunteers",
+    "build:all": "npm run build --workspaces",
+    "lint:all": "npm run lint --workspaces --if-present",
+    "docker:up": "docker-compose up -d --build",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f"
+  },
+  "keywords": ["qcsp", "monorepo"],
+  "author": "QCSP Volunteers",
+  "license": "UNLICENSED"
+}

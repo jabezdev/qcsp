@@ -1,0 +1,174 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222 47% 11%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    --primary: 199 89% 40%; /* Darkened for better contrast on white (was 48%) */
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%; /* This is okay */
+
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 85%; /* Darkened from 91.4% */
+    --input: 214.3 31.8% 85%;
+    --ring: 199 89% 40%;
+
+    --radius: 0.5rem;
+
+    /* Custom quantum colors - modified for light mode contrast */
+    --quantum-cyan: 199 89% 40%;
+    --quantum-purple: 262 83% 50%;
+    --quantum-blue: 221 83% 45%;
+    --quantum-teal: 175 90% 30%;
+    --quantum-pink: 320 80% 45%;
+    --quantum-orange: 25 90% 45%;
+    --quantum-green: 150 80% 35%;
+    --quantum-yellow: 45 100% 40%;
+
+    /* Glow effects */
+    --glow-cyan: 0 0 10px hsl(199 89% 48% / 0.2);
+    --glow-purple: 0 0 10px hsl(262 83% 58% / 0.2);
+    --glow-highlight: 0 0 15px hsl(199 89% 48% / 0.3);
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 222 47% 6%;
+    --foreground: 210 40% 98%;
+
+    --card: 222 47% 8%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222 47% 8%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 199 89% 48%;
+    --primary-foreground: 222 47% 6%;
+
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+
+    --accent: 217 33% 17%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217 33% 20%;
+    --input: 217 33% 20%;
+    --ring: 199 89% 48%;
+
+    /* Custom quantum colors - for dark mode */
+    --quantum-cyan: 199 89% 55%;
+    --quantum-purple: 262 83% 65%;
+    --quantum-blue: 221 83% 60%;
+    --quantum-teal: 175 90% 45%;
+    --quantum-pink: 320 80% 60%;
+    --quantum-orange: 25 90% 55%;
+    --quantum-green: 150 80% 50%;
+    --quantum-yellow: 45 100% 50%;
+
+    /* Glow effects - brighter for dark mode */
+    --glow-cyan: 0 0 15px hsl(199 89% 55% / 0.4);
+    --glow-purple: 0 0 15px hsl(262 83% 65% / 0.4);
+    --glow-highlight: 0 0 20px hsl(199 89% 55% / 0.5);
+
+    --sidebar-background: 222 47% 8%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 199 89% 48%;
+    --sidebar-primary-foreground: 222 47% 6%;
+    --sidebar-accent: 217 33% 17%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 217 33% 20%;
+    --sidebar-ring: 199 89% 48%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Inter', sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Space Grotesk', sans-serif;
+  }
+}
+
+@layer utilities {
+  .quantum-glow {
+    box-shadow: var(--glow-cyan);
+  }
+
+  .quantum-glow-highlight {
+    box-shadow: var(--glow-highlight);
+    animation: pulse-glow 1.5s ease-in-out infinite;
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% {
+      box-shadow: 0 0 20px hsl(175 70% 45% / 0.5);
+    }
+    50% {
+      box-shadow: 0 0 35px hsl(175 70% 45% / 0.8);
+    }
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.3s ease-out;
+  }
+
+  .grid-pattern {
+    background-image: 
+      linear-gradient(hsl(var(--border) / 0.5) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--border) / 0.5) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+}

@@ -1,0 +1,14 @@
+services:
+  qcsp-volunteers:
+    build: .
+    container_name: qcsp-volunteers
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    volumes:
+      # Persist data outside the container
+      - ./data:/app/data
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - DATA_FILE=/app/data/data.json

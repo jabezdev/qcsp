@@ -1,0 +1,50 @@
+# QCSP Hub - Main docker-compose configuration
+# This orchestrates all QCSP applications behind a single nginx reverse proxy
+# Access: qcsp.mydomain.com (hub), qcsp.mydomain.com/volunteers (volunteers app)
+
+services:
+  # Nginx reverse proxy - routes traffic to different apps
+  nginx:
+    image: nginx:alpine
+    container_name: qcsp-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+    depends_on:
+      - hub
+      - volunteers
+    networks:
+      - qcsp-network
+
+  # QCSP Hub - Main landing page / marketplace
+  hub:
+    build: ./qcsp-hub
+    container_name: qcsp-hub
+    restart: unless-stopped
+    expose:
+      - "80"
+    networks:
+      - qcsp-network
+
+  # QCSP Volunteers - Volunteer Matrix app
+  volunteers:
+    build: ./qcsp-volunteers
+    container_name: qcsp-volunteers
+    restart: unless-stopped
+    expose:
+      - "3001"
+    volumes:
+      - ./qcsp-volunteers/data:/app/data
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - DATA_FILE=/app/data/data.json
+    networks:
+      - qcsp-network
+
+networks:
+  qcsp-network:
+    driver: bridge
