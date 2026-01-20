@@ -22,6 +22,9 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
+  DragOverlay, 
+  defaultDropAnimationSideEffects,
+  DragEndEvent
 } from '@dnd-kit/core';
 import {
   arrayMove,
@@ -116,7 +119,7 @@ function SortableProject({
       style={style}
       className={cn(
         "group flex items-start gap-2 p-3 rounded-lg border bg-card hover:bg-accent/30 transition-colors cursor-pointer",
-        isDragging && "opacity-50"
+        isDragging && "opacity-50 z-50 relative"
       )}
       onClick={() => setIsEditing(true)}
     >
@@ -155,7 +158,7 @@ function SortableProject({
 }
 
 // Program Group Component
-function ProgramGroup({
+function SortableProgramGroup({
   groupName,
   projects,
   onRenameGroup,
@@ -177,6 +180,24 @@ function ProgramGroup({
   const [isEditingName, setIsEditingName] = useState(false);
   const [newGroupName, setNewGroupName] = useState(groupName);
 
+  // Sortable for THE GROUP
+  const {
+      attributes,
+      listeners,
+      setNodeRef,
+      transform,
+      transition,
+      isDragging,
+    } = useSortable({ id: groupName });
+  
+  const style = {
+      transform: CSS.Transform.toString(transform),
+      transition,
+      zIndex: isDragging ? 100 : 'auto',
+      position: 'relative' as const,
+  };
+
+  // Sensors for INTERNAL projects list
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
@@ -189,7 +210,7 @@ function ProgramGroup({
     setIsEditingName(false);
   };
 
-  const handleDragEnd = (event: any) => {
+  const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (active.id !== over?.id) {
       const oldIndex = projects.findIndex((p) => p.id === active.id);
@@ -199,59 +220,84 @@ function ProgramGroup({
   };
 
   return (
-    <AccordionItem value={groupName} className="border rounded-lg overflow-hidden bg-muted/20">
-      <AccordionTrigger className="px-4 py-3 hover:no-underline hover:bg-muted/30 group">
-        <div className="flex items-center gap-3 flex-1">
-          <FolderKanban className="w-5 h-5 text-primary" />
-          {isEditingName ? (
-            <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-              <Input
-                value={newGroupName}
-                onChange={(e) => setNewGroupName(e.target.value)}
-                className="h-7 w-48"
-                autoFocus
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') handleRename();
-                  if (e.key === 'Escape') {
-                    setNewGroupName(groupName);
-                    setIsEditingName(false);
-                  }
-                }}
-                onBlur={handleRename}
-              />
-            </div>
-          ) : (
-            <span 
-              className="font-semibold cursor-text"
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsEditingName(true);
-              }}
-            >
-              {groupName}
-            </span>
-          )}
-          <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">
-            {projects.length} {projects.length === 1 ? 'project' : 'projects'}
-          </span>
-        </div>
-        <Button
-          size="icon"
-          variant="ghost"
-          className="h-7 w-7 opacity-0 group-hover:opacity-100 text-destructive hover:text-destructive mr-2"
-          onClick={(e) => {
-            e.stopPropagation();
-            if (confirm(`Delete program "${groupName}" and all its projects?`)) {
-              onDeleteGroup(groupName);
-            }
-          }}
+    <AccordionItem 
+      value={groupName} 
+      ref={setNodeRef} 
+      style={style}
+      className={cn("border rounded-lg overflow-hidden bg-muted/20 mb-2", isDragging && "opacity-50")}
+    >
+      <div className="flex">
+        <div 
+           {...attributes} 
+           {...listeners}
+           className="flex items-center justify-center px-2 cursor-grab active:cursor-grabbing hover:bg-muted/40 border-r border-transparent hover:border-border transition-colors"
+           onClick={(e) => e.stopPropagation()}
         >
-          <Trash2 className="w-4 h-4" />
-        </Button>
-      </AccordionTrigger>
-      <AccordionContent className="px-4 pb-4">
+             <GripVertical className="w-4 h-4 text-muted-foreground/50" />
+        </div>
+        <div className="flex-1">
+            <AccordionTrigger className="px-4 py-3 hover:no-underline hover:bg-muted/30 group">
+                <div className="flex items-center gap-3 flex-1 overflow-hidden">
+                <FolderKanban className="w-5 h-5 text-primary flex-shrink-0" />
+                {isEditingName ? (
+                    <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                    <Input
+                        value={newGroupName}
+                        onChange={(e) => setNewGroupName(e.target.value)}
+                        className="h-7 w-48"
+                        autoFocus
+                        onKeyDown={(e) => {
+                        if (e.key === 'Enter') handleRename();
+                        if (e.key === 'Escape') {
+                            setNewGroupName(groupName);
+                            setIsEditingName(false);
+                        }
+                        }}
+                        onBlur={handleRename}
+                    />
+                    </div>
+                ) : (
+                    <span 
+                    className="font-semibold cursor-text truncate"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        setIsEditingName(true);
+                    }}
+                    title={groupName}
+                    >
+                    {groupName}
+                    </span>
+                )}
+                <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full flex-shrink-0">
+                    {projects.length}
+                </span>
+                </div>
+                <Button
+                size="icon"
+                variant="ghost"
+                className="h-7 w-7 opacity-0 group-hover:opacity-100 text-destructive hover:text-destructive mr-2 flex-shrink-0"
+                onClick={(e) => {
+                    e.stopPropagation();
+                    if (confirm(`Delete program "${groupName}" and all its projects?`)) {
+                    onDeleteGroup(groupName);
+                    }
+                }}
+                >
+                <Trash2 className="w-4 h-4" />
+                </Button>
+            </AccordionTrigger>
+        </div>
+      </div>
+      
+      <AccordionContent className="px-4 pb-4 bg-background/50">
         <div className="space-y-2 pt-2">
-          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          {/* Internal DndContext for Projects */}
+          <DndContext 
+            id={`dnd-context-${groupName}`}
+            sensors={sensors} 
+            collisionDetection={closestCenter} 
+            onDragEnd={handleDragEnd}
+          >
             <SortableContext items={projects.map(p => p.id)} strategy={verticalListSortingStrategy}>
               {projects.map((project) => (
                 <SortableProject
@@ -267,7 +313,7 @@ function ProgramGroup({
           <Button
             variant="ghost"
             size="sm"
-            className="w-full justify-start text-muted-foreground hover:text-primary"
+            className="w-full justify-start text-muted-foreground hover:text-primary mt-2"
             onClick={() => onAddProject(groupName)}
           >
             <Plus className="w-4 h-4 mr-2" />
@@ -282,17 +328,35 @@ function ProgramGroup({
 export function ProgramModal() {
   const { programs, addProgram, updateProgram, deleteProgram, setPrograms } = useVolunteerStore();
   const [isOpen, setIsOpen] = useState(false);
-  const [isAddingProgram, setIsAddingProgram] = useState(false);
   const [newProgramName, setNewProgramName] = useState('');
+
+  // Sensors for GROUPS
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
 
   // Group programs by their group property
   const groupedPrograms = useMemo(() => {
     const groups: Record<string, ProgramTeam[]> = {};
     const ungrouped: ProgramTeam[] = [];
+    const groupOrders: Record<string, number> = {};
 
-    const sorted = [...programs].sort((a, b) => (a.order || 0) - (b.order || 0));
+    // First pass to find group orders
+    programs.forEach(p => {
+        if (p.group && p.groupOrder !== undefined) {
+             // If multiple projects have different groupOrder for same group, take the first one found or min?
+             // Ideally they are synced. We'll take the first defined one.
+             if (groupOrders[p.group] === undefined) {
+                 groupOrders[p.group] = p.groupOrder;
+             }
+        }
+    });
 
-    sorted.forEach((p) => {
+    // Sort projects items by their internal 'order'
+    const sortedProjects = [...programs].sort((a, b) => (a.order || 0) - (b.order || 0));
+
+    sortedProjects.forEach((p) => {
       if (p.group) {
         if (!groups[p.group]) groups[p.group] = [];
         groups[p.group].push(p);
@@ -301,15 +365,23 @@ export function ProgramModal() {
       }
     });
 
-    return { groups, ungrouped, groupNames: Object.keys(groups).sort() };
+    const groupNames = Object.keys(groups).sort((a, b) => {
+         const orderA = groupOrders[a] ?? 9999;
+         const orderB = groupOrders[b] ?? 9999;
+         if (orderA !== orderB) return orderA - orderB;
+         return a.localeCompare(b);
+    });
+
+    return { groups, ungrouped, groupNames };
   }, [programs]);
 
   const handleAddProgram = () => {
     if (!newProgramName.trim()) return;
-    // Create a new group by adding a placeholder project
-    addProgram({ name: 'New Project', group: newProgramName.trim() });
+    const group = newProgramName.trim();
+    // Default groupOrder at the end
+    const lastOrder = groupedPrograms.groupNames.length;
+    addProgram({ name: 'New Project', group, groupOrder: lastOrder, order: 0 });
     setNewProgramName('');
-    setIsAddingProgram(false);
   };
 
   const handleRenameGroup = (oldName: string, newName: string) => {
@@ -329,23 +401,56 @@ export function ProgramModal() {
   };
 
   const handleAddProject = (groupName: string) => {
-    addProgram({ name: 'New Project', group: groupName });
+    // Determine last order
+    const groupProjects = groupedPrograms.groups[groupName] || [];
+    const maxOrder = Math.max(...groupProjects.map(p => p.order || 0), -1);
+    
+    // Determine groupOrder (from existing)
+    const existing = groupProjects[0];
+    const groupOrder = existing?.groupOrder;
+
+    addProgram({ 
+        name: 'New Project', 
+        group: groupName, 
+        order: maxOrder + 1,
+        groupOrder
+    });
   };
 
   const handleReorderProjects = (groupName: string, oldIndex: number, newIndex: number) => {
     const groupProjects = groupedPrograms.groups[groupName];
     const reordered = arrayMove(groupProjects, oldIndex, newIndex);
     
-    // Update order for all projects in this group
     const updatedPrograms = programs.map((p) => {
+      if (p.group !== groupName) return p;
       const idx = reordered.findIndex((rp) => rp.id === p.id);
-      if (idx !== -1) {
-        return { ...p, order: idx };
-      }
+      if (idx !== -1) return { ...p, order: idx };
       return p;
     });
     
     setPrograms(updatedPrograms);
+  };
+
+  const handleReorderGroups = (event: DragEndEvent) => {
+      const { active, over } = event;
+      if (!over || active.id === over.id) return;
+
+      const oldIndex = groupedPrograms.groupNames.indexOf(active.id);
+      const newIndex = groupedPrograms.groupNames.indexOf(over.id);
+      
+      const newGroupNames = arrayMove(groupedPrograms.groupNames, oldIndex, newIndex);
+      
+      // Update ALL projects map
+      const updatedPrograms = programs.map(p => {
+          if (!p.group) return p;
+          const newGroupOrder = newGroupNames.indexOf(p.group);
+          if (newGroupOrder !== -1 && p.groupOrder !== newGroupOrder) {
+              return { ...p, groupOrder: newGroupOrder };
+          }
+          return p;
+      });
+
+      setPrograms(updatedPrograms);
   };
 
   return (
@@ -364,9 +469,21 @@ export function ProgramModal() {
             Programs & Projects
           </DialogTitle>
           <DialogDescription>
-            Programs are groups of related projects. Projects appear as columns in the matrix.
+             Manage program teams and their projects. Drag to reorder groups and projects.
           </DialogDescription>
         </DialogHeader>
+
+        <div className="flex gap-2 py-2">
+          <Input 
+            placeholder="New Program Name..." 
+            value={newProgramName}
+            onChange={(e) => setNewProgramName(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleAddProgram()}
+          />
+          <Button onClick={handleAddProgram} disabled={!newProgramName.trim()}>
+            <Plus className="w-4 h-4 mr-2" /> Add Program
+          </Button>
+        </div>
 
         <ScrollArea className="flex-1 -mx-6 px-6">
           <div className="space-y-3 py-4">
@@ -390,85 +507,33 @@ export function ProgramModal() {
               </div>
             )}
 
-            {/* Program Groups */}
-            <Accordion type="multiple" defaultValue={groupedPrograms.groupNames} className="space-y-2">
-              {groupedPrograms.groupNames.map((groupName) => (
-                <ProgramGroup
-                  key={groupName}
-                  groupName={groupName}
-                  projects={groupedPrograms.groups[groupName]}
-                  onRenameGroup={handleRenameGroup}
-                  onDeleteGroup={handleDeleteGroup}
-                  onUpdateProject={updateProgram}
-                  onDeleteProject={deleteProgram}
-                  onAddProject={handleAddProject}
-                  onReorderProjects={handleReorderProjects}
-                />
-              ))}
-            </Accordion>
-
-            {/* Add New Program */}
-            {isAddingProgram ? (
-              <div className="border rounded-lg p-4 bg-primary/5 space-y-3">
-                <div className="flex items-center gap-2">
-                  <FolderKanban className="w-5 h-5 text-primary" />
-                  <span className="font-medium">New Program</span>
-                </div>
-                <Input
-                  value={newProgramName}
-                  onChange={(e) => setNewProgramName(e.target.value)}
-                  placeholder="Program name (e.g., Education, Partnerships)..."
-                  autoFocus
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') handleAddProgram();
-                    if (e.key === 'Escape') {
-                      setIsAddingProgram(false);
-                      setNewProgramName('');
-                    }
-                  }}
-                />
-                <div className="flex gap-2">
-                  <Button size="sm" onClick={handleAddProgram}>
-                    <Check className="w-3 h-3 mr-1" /> Create Program
-                  </Button>
-                  <Button size="sm" variant="ghost" onClick={() => {
-                    setIsAddingProgram(false);
-                    setNewProgramName('');
-                  }}>
-                    Cancel
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <Button
-                variant="outline"
-                className="w-full justify-start gap-2 border-dashed"
-                onClick={() => setIsAddingProgram(true)}
-              >
-                <Plus className="w-4 h-4" />
-                Add Program
-              </Button>
-            )}
-
-            {/* Add Standalone Project */}
-            <Button
-              variant="ghost"
-              className="w-full justify-start text-muted-foreground"
-              onClick={() => addProgram({ name: 'New Project' })}
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Add standalone project (no program)
-            </Button>
+            {/* Program Groups (Sortable) */}
+             <DndContext 
+                id="groups-dnd-context"
+                sensors={sensors} 
+                collisionDetection={closestCenter} 
+                onDragEnd={handleReorderGroups}
+             >
+                <SortableContext items={groupedPrograms.groupNames} strategy={verticalListSortingStrategy}>
+                    <Accordion type="multiple" defaultValue={groupedPrograms.groupNames} className="space-y-2">
+                    {groupedPrograms.groupNames.map((groupName) => (
+                        <SortableProgramGroup
+                            key={groupName}
+                            groupName={groupName}
+                            projects={groupedPrograms.groups[groupName]}
+                            onRenameGroup={handleRenameGroup}
+                            onDeleteGroup={handleDeleteGroup}
+                            onUpdateProject={updateProgram}
+                            onDeleteProject={deleteProgram}
+                            onAddProject={handleAddProject}
+                            onReorderProjects={handleReorderProjects}
+                        />
+                    ))}
+                    </Accordion>
+                </SortableContext>
+            </DndContext>
           </div>
         </ScrollArea>
-
-        {programs.length === 0 && (
-          <div className="text-center py-12 text-muted-foreground">
-            <FolderKanban className="w-12 h-12 mx-auto mb-3 opacity-20" />
-            <p>No programs or projects yet</p>
-            <p className="text-sm">Click "Add Program" to get started</p>
-          </div>
-        )}
       </DialogContent>
     </Dialog>
   );

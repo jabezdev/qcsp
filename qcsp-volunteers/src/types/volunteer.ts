@@ -17,7 +17,8 @@ export interface ProgramTeam {
   name: string;
   description?: string;
   group?: string; // Umbrella grouping
-  order?: number; // For sorting/drag-drop ordering
+  order?: number; // For sorting projects within group
+  groupOrder?: number; // For sorting groups
 }
 
 export interface Assignment {

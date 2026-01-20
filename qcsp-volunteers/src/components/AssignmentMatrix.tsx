@@ -15,8 +15,38 @@ export function AssignmentMatrix() {
       const g: Record<string, typeof programs> = {};
       const order: string[] = [];
       
-      // Sort programs by name first to ensure consistent order within groups
-      const sortedPrograms = [...programs].sort((a, b) => a.name.localeCompare(b.name));
+      // Sort programs by groupOrder first, then name
+      // This logic is slightly complex because programs are flat
+      // We want to find the groupOrder for each group
+      
+      const groupOrders: Record<string, number> = {};
+      programs.forEach(p => {
+          if (p.group && p.groupOrder !== undefined) {
+              groupOrders[p.group] = p.groupOrder;
+          }
+      });
+      
+      const sortedPrograms = [...programs].sort((a, b) => {
+          // 1. Sort by Group Order
+          const groupA = a.group || 'Ungrouped';
+          const groupB = b.group || 'Ungrouped';
+          
+          const orderA = groupOrders[groupA] ?? 9999;
+          const orderB = groupOrders[groupB] ?? 9999;
+          
+          if (orderA !== orderB) return orderA - orderB;
+          
+          // 2. Sort by Group Name if orders are same (or ungrouped)
+          if (groupA !== groupB) return groupA.localeCompare(groupB);
+          
+          // 3. Sort by Project Order within group
+          const pOrderA = a.order ?? 9999;
+          const pOrderB = b.order ?? 9999;
+          
+          if (pOrderA !== pOrderB) return pOrderA - pOrderB;
+          
+          return a.name.localeCompare(b.name);
+      });
 
       sortedPrograms.forEach(p => {
           const groupName = p.group || 'Ungrouped';
