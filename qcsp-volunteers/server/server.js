@@ -13,11 +13,20 @@ const PORT = process.env.PORT || 3001;
 const DATA_FILE = process.env.DATA_FILE || path.join(__dirname, 'data.json');
 
 // Initialize data file if it doesn't exist
-if (!fs.existsSync(DATA_FILE)) {
-  const initialData = { people: [], committees: [], programs: [], assignments: [] };
-  fs.writeFileSync(DATA_FILE, JSON.stringify(initialData, null, 2));
-  console.log('Created initial data file');
-}
+const ensureDataFile = () => {
+    const dir = path.dirname(DATA_FILE);
+    if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+    }
+    
+    if (!fs.existsSync(DATA_FILE)) {
+        const initialData = { people: [], committees: [], programs: [], assignments: [] };
+        fs.writeFileSync(DATA_FILE, JSON.stringify(initialData, null, 2));
+        console.log('Created initial data file at', DATA_FILE);
+    }
+};
+
+ensureDataFile();
 
 app.use(cors());
 app.use(bodyParser.json());

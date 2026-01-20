@@ -107,8 +107,8 @@ const Index = () => {
                 <div className="hidden text-xl font-bold tracking-tighter text-primary">QCSP</div>
               </div>
               
-               <div className="hidden md:block border-l pl-4 h-8 flex items-center">
-                 <h1 className="font-display font-semibold text-lg text-foreground leading-none">
+               <div className="hidden md:block border-l pl-4 ml-4">
+                 <h1 className="font-display font-semibold text-lg text-foreground">
                   QCSP Volunteer Matrix
                 </h1>
               </div>
