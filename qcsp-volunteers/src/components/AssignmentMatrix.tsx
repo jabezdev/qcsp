@@ -9,6 +9,8 @@ import { CSS } from '@dnd-kit/utilities';
 export function AssignmentMatrix() {
   const { committees, programs, assignments, people, removeAssignment, isAdmin } = useVolunteerStore();
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
+  const [programsHighlighted, setProgramsHighlighted] = useState(false);
+  const [committeesHighlighted, setCommitteesHighlighted] = useState(false);
 
   // 1. Prepare Data Structure
   const { groups, groupOrder } = useMemo(() => {
@@ -114,14 +116,20 @@ export function AssignmentMatrix() {
   };
 
   return (
-    <div className="flex flex-col h-full bg-background border rounded-lg shadow-sm overflow-hidden select-none">
+    <div className="inline-flex flex-col bg-background border rounded-lg shadow-sm overflow-hidden select-none max-w-full max-h-full">
       
       {/* Scrollable Container */}
-      <div className="flex-1 overflow-auto relative custom-scrollbar">
+      <div className="overflow-auto relative custom-scrollbar">
          <div className="grid w-max" style={{ gridTemplateColumns }}>
              
              {/* --- HEADER ROW 1: GROUPS --- */}
-             <div className="sticky top-0 left-0 col-start-1 row-start-1 z-50 bg-card border-b border-r border-border h-10 flex items-center px-4 text-xs font-medium text-muted-foreground">
+             <div 
+                 className={cn(
+                     "sticky top-0 left-0 col-start-1 row-start-1 z-50 bg-card border-b border-r border-border h-10 flex items-center px-4 text-xs font-medium text-muted-foreground cursor-pointer hover:bg-muted/50 transition-colors",
+                     programsHighlighted && "bg-primary/10 text-primary"
+                 )}
+                 onClick={() => setProgramsHighlighted(prev => !prev)}
+             >
                  <div className="flex items-center gap-2">
                     <FolderKanban className="w-4 h-4" />
                     <span>Program Teams</span>
@@ -142,7 +150,8 @@ export function AssignmentMatrix() {
                         key={gName} 
                         className={cn(
                             "sticky top-0 z-40 border-b border-r border-border h-10 flex items-center justify-center px-2 transition-colors cursor-pointer hover:bg-muted/50 text-sm font-medium",
-                            isExpanded ? "bg-accent/20 backdrop-blur-md bg-card/80" : "bg-card"
+                            isExpanded ? "bg-accent/20 backdrop-blur-md bg-card/80" : "bg-card",
+                            programsHighlighted && "bg-primary/10 ring-2 ring-inset ring-primary/30"
                         )}
                         style={{ gridColumn: `span ${span}` }}
                         onClick={() => toggleGroup(gName)}
@@ -163,7 +172,13 @@ export function AssignmentMatrix() {
 
              {/* --- HEADER ROW 2: PROJECTS --- */}
              {/* Empty cell for top-left intersection row 2 */}
-             <div className="sticky top-10 left-0 z-50 bg-card border-b border-r border-border min-h-[56px] flex items-center px-4 text-xs font-medium text-muted-foreground">
+             <div 
+                 className={cn(
+                     "sticky top-10 left-0 z-50 bg-card border-b border-r border-border min-h-[56px] flex items-center px-4 text-xs font-medium text-muted-foreground cursor-pointer hover:bg-muted/50 transition-colors",
+                     committeesHighlighted && "bg-primary/10 text-primary"
+                 )}
+                 onClick={() => setCommitteesHighlighted(prev => !prev)}
+             >
                  <div className="flex items-center gap-2">
                     <Users className="w-4 h-4" />
                     <span>Functional Committees</span>
@@ -176,7 +191,10 @@ export function AssignmentMatrix() {
                      return (
                          <div 
                              key={`h-${col.id}`} 
-                             className="sticky top-10 z-40 min-h-[56px] border-b border-r border-border bg-muted/10 flex items-center justify-center backdrop-blur-md px-2 py-1"
+                             className={cn(
+                                 "sticky top-10 z-40 min-h-[56px] border-b border-r border-border bg-muted/10 flex items-center justify-center backdrop-blur-md px-2 py-1",
+                                 programsHighlighted && "bg-primary/10 ring-2 ring-inset ring-primary/30"
+                             )}
                          >
                             {col.projectNames && col.projectNames.length > 0 ? (
                                 <span className="text-[10px] text-muted-foreground text-center line-clamp-3" title={col.projectNames.join(', ')}>
@@ -191,7 +209,10 @@ export function AssignmentMatrix() {
                  return (
                      <div 
                          key={`h-${col.id}`} 
-                         className="sticky top-10 z-40 min-h-[56px] px-2 py-1.5 border-b border-r border-border bg-card flex flex-col items-center justify-center text-center group hover:bg-accent/5 backdrop-blur-md"
+                         className={cn(
+                             "sticky top-10 z-40 min-h-[56px] px-2 py-1.5 border-b border-r border-border bg-card flex flex-col items-center justify-center text-center group hover:bg-accent/5 backdrop-blur-md",
+                             programsHighlighted && "bg-primary/10 ring-2 ring-inset ring-primary/30"
+                         )}
                      >
                          <span className="text-xs font-medium leading-tight line-clamp-2" title={col.name}>
                              {col.name}
@@ -212,7 +233,10 @@ export function AssignmentMatrix() {
                     {/* Row Header (Sticky Left) */}
                     <div 
                         key={`row-${committee.id}`} 
-                        className="sticky left-0 z-30 bg-card border-b border-r border-border px-4 py-2 min-h-[48px] flex flex-col justify-center"
+                        className={cn(
+                            "sticky left-0 z-30 bg-card border-b border-r border-border px-4 py-2 min-h-[48px] flex flex-col justify-center",
+                            committeesHighlighted && "bg-primary/10 ring-2 ring-inset ring-primary/30"
+                        )}
                     >
                         <div className="font-semibold text-sm">{committee.name}</div>
                         {committee.description && (

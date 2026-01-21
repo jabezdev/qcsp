@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { useVolunteerStore } from '@/store/volunteerStore';
 import { Users, Plus, Trash2, Check, X, GripVertical } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   DndContext,
   closestCenter,
@@ -208,7 +209,7 @@ export function CommitteeModal() {
         </Button>
       </DialogTrigger>
       
-      <DialogContent className="max-w-2xl w-full">
+      <DialogContent className="max-w-2xl w-full h-[85vh] flex flex-col overflow-hidden">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-xl">
             <Users className="w-5 h-5 text-primary" />
@@ -219,8 +220,9 @@ export function CommitteeModal() {
           </DialogDescription>
         </DialogHeader>
 
-        <div className="border rounded-lg overflow-hidden mt-4">
-          <Table>
+        <ScrollArea className="flex-1 min-h-0 mt-4 -mx-6 px-6 overflow-y-auto">
+          <div className="border rounded-lg overflow-hidden mb-10">
+            <Table>
             <TableHeader>
               <TableRow className="bg-muted/50">
                 <TableHead className="w-10"></TableHead>
@@ -306,6 +308,7 @@ export function CommitteeModal() {
             <p className="text-sm">Click "Add committee" to create your first one</p>
           </div>
         )}
+        </ScrollArea>
       </DialogContent>
     </Dialog>
   );

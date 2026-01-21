@@ -100,7 +100,7 @@ const Index = () => {
           <div className="flex items-center h-full">
             <div className="flex items-center gap-4">
               <div className="h-8 w-auto">
-                <img src="/QCSP_Brandmark.png" alt="QCSP Logo" className="h-full object-contain" onError={(e) => {
+                <img src="/volunteers/QCSP_Brandmark.png" alt="QCSP Logo" className="h-full object-contain" onError={(e) => {
                     e.currentTarget.style.display = 'none';
                     e.currentTarget.nextElementSibling?.classList.remove('hidden');
                 }}/>
@@ -124,7 +124,10 @@ const Index = () => {
                   <PeopleModal />
                 </>
               )}
-                            <ThemeToggle />              <AdminLoginModal />
+              <AdminLoginModal />
+              <div className="ml-2 border-l border-border pl-2">
+                <ThemeToggle />
+              </div>
             </div>
           </div>
         </div>
@@ -133,8 +136,8 @@ const Index = () => {
       {/* Main Content - Flex Column */}
       <main className="flex-1 flex flex-col overflow-hidden">
         
-        {/* Matrix Area - Grows to fill available space */}
-        <div className="flex-1 overflow-hidden p-4"> 
+        {/* Matrix Area - Centers content, allows growth with max constraints */}
+        <div className="flex-1 overflow-auto p-4 flex items-center justify-center"> 
             <AssignmentMatrix />
         </div>
 

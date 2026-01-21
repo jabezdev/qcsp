@@ -252,7 +252,7 @@ export function PeopleModal() {
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="max-w-3xl w-full max-h-[85vh] flex flex-col">
+      <DialogContent className="max-w-3xl w-full h-[85vh] flex flex-col overflow-hidden">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-xl">
             <Users className="w-5 h-5 text-primary" />
@@ -285,8 +285,8 @@ export function PeopleModal() {
           )}
         </div>
 
-        <ScrollArea className="flex-1 -mx-6 px-6">
-          <div className="space-y-4 py-4">
+        <ScrollArea className="flex-1 min-h-0 -mx-6 px-6 overflow-y-auto">
+          <div className="space-y-4 py-4 pb-10">
             {/* Add Form */}
             {isAdding && (
               <AddEditForm

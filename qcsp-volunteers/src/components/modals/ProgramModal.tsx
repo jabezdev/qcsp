@@ -462,7 +462,7 @@ export function ProgramModal() {
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="max-w-2xl w-full max-h-[85vh] flex flex-col">
+      <DialogContent className="max-w-2xl w-full h-[85vh] flex flex-col overflow-hidden">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-xl">
             <FolderKanban className="w-5 h-5 text-primary" />
@@ -485,8 +485,8 @@ export function ProgramModal() {
           </Button>
         </div>
 
-        <ScrollArea className="flex-1 -mx-6 px-6">
-          <div className="space-y-3 py-4">
+        <ScrollArea className="flex-1 min-h-0 -mx-6 px-6 overflow-y-auto">
+          <div className="space-y-3 py-4 pb-10">
             {/* Ungrouped Projects */}
             {groupedPrograms.ungrouped.length > 0 && (
               <div className="border rounded-lg p-4 bg-muted/10">
